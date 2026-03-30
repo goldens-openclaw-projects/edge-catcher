@@ -11,33 +11,10 @@
 
 ---
 
-## Phase 1 — Web UI (Next)
-**Goal:** Browser dashboard wrapping existing CLI pipeline. Zero new infrastructure — FastAPI serves the existing Python engine, React visualizes it.
-
-### Backend (FastAPI)
-- [ ]  — DB stats (market count, trade count, last download)
-- [ ]  — trigger incremental download (background task)
-- [ ]  — download progress (SSE stream)
-- [ ]  — AI hypothesis formalization
-- [ ]  — run backtest for hypothesis
-- [ ]  — list analysis history
-- [ ]  — single result detail
-- [ ]  — AI interpretation of result
-- [ ]  — list registered hypotheses
-- [ ] Auth: single API key header (set in .env)
-
-### Frontend (React + Vite)
-- [ ] Dashboard: DB stats card, last-run verdicts, quick-action buttons
-- [ ] Hypothesis panel: list hypotheses, show verdict badges
-- [ ] Run panel: trigger download/analyze, stream progress log
-- [ ] Results table: sortable by verdict, t-stat, edge, timestamp
-- [ ] Result detail: bucket breakdown chart, AI interpretation panel
-- [ ] Formalize flow: text input → AI output → editable config preview
-
-### Constraints
-- No new DB schema changes
-- UI is optional — CLI must remain fully functional without it
-- FastAPI wraps existing Python modules; no logic duplication
+## Phase 1 — Web UI ✅ Complete
+**Goal:** Browser dashboard wrapping existing CLI pipeline.
+- [x] FastAPI backend (9 endpoints) + React/Vite frontend (4 views, dark mode, Tailwind)
+- [x] Pre-built, served by FastAPI. 67 tests passing. Pushed to main.
 
 ---
 
@@ -61,13 +38,19 @@
 
 ---
 
-## Phase 4 — Live Data & Agent Backtesting
+## Phase 4 — Live Data & Agent Backtesting (In Progress)
 **Goal:** Real-time edge monitoring + agent-driven backtesting.
 
-- [ ] WebSocket/polling adapter ( — stub exists in )
-- [ ] Live signal alerts (Discord/webhook) when edge condition detected
+- [x] WebSocket adapter (paper_trader.py — Kalshi WS, live ticker subscription)
+- [x] Paper trader systemd service (edge-catcher-paper-trader)
+- [x] Multi-strategy support: Strategy A (YES 70-99¢), Strategy B (contrarian NO on momentum drops)
+- [x] Discord webhook notifications on every trade (buy/win/loss, tagged by strategy)
+- [x] Daily P&L cron reporting
+- [x] Hypothesis analysis against 16.7M historical trades (4 hypotheses validated)
+- [ ] **Active trading (exit before expiry)** — the key scaling unlock. Track yes_bid from WS/orderbook, implement take-profit exits (e.g. buy at 85¢, sell at 92¢), stop-loss, and capital recycling within each contract's lifetime. Enables multiple round-trips per hour vs one hold-to-settlement. Requires: bid tracking, exit logic, P&L per round-trip. Build after hold-to-settlement edge is validated live.
+- [ ] Live signal alerts beyond paper trades
 - [ ] Agent backtesting: spawn AI agent against live DB pipeline to validate edge continuously
-- [ ] Candlesticks table already in schema — wire up OHLCV aggregation
+- [ ] Candlesticks table — wire up OHLCV aggregation
 
 ---
 
