@@ -228,37 +228,38 @@ def _cmd_backtest(args) -> None:
     import json
     from datetime import date
     from edge_catcher.runner.event_backtest import EventBacktester
-    from edge_catcher.runner.strategies import (
-        StrategyA, StrategyB, StrategyC, StrategyTP,
-        StrategyD, StrategyH5_15m, StrategyA_VolumeFiltered,
-        StrategyC_VolumeFiltered, StrategyA_MomentumFiltered,
-        StrategyC_MomentumFiltered,
-    )
+    from edge_catcher.runner.strategies import ExampleStrategy
+    try:
+        from edge_catcher.runner.strategies_local import (
+            StrategyA, StrategyB, StrategyC, StrategyTP,
+            StrategyD, StrategyH5_15m, StrategyA_VolumeFiltered,
+            StrategyC_VolumeFiltered, StrategyA_MomentumFiltered,
+            StrategyC_MomentumFiltered,
+        )
+        _has_local = True
+    except ImportError:
+        _has_local = False
 
-    strategy_map = {
-        'sweet-spot': StrategyA,
-        'sweet-spot-vol': StrategyA_VolumeFiltered,
-        'contra-dip': StrategyB,
-        'fade-long': StrategyC,
-        'debut-fade': StrategyD,
-        'TP': StrategyTP,
-        'flb-15m': StrategyH5_15m,
-        # Backwards compat aliases
-        'A': StrategyA,
-        'Avol': StrategyA_VolumeFiltered,
-        'Cvol': StrategyC_VolumeFiltered,
-        'fade-long-vol': StrategyC_VolumeFiltered,
-        'Amom': StrategyA_MomentumFiltered,
-        'sweet-spot-mom': StrategyA_MomentumFiltered,
-        'Cmom': StrategyC_MomentumFiltered,
-        'fade-long-mom': StrategyC_MomentumFiltered,
-        'B': StrategyB,
-        'C': StrategyC,
-        'D': StrategyD,
-        'H1': StrategyD,
-        'H5_15m': StrategyH5_15m,
-        'H5_15M': StrategyH5_15m,
+    strategy_map: dict = {
+        'example': ExampleStrategy,
     }
+    if _has_local:
+        strategy_map.update({
+            'sweet-spot': StrategyA,
+            'sweet-spot-vol': StrategyA_VolumeFiltered,
+            'contra-dip': StrategyB,
+            'fade-long': StrategyC,
+            'fade-long-vol': StrategyC_VolumeFiltered,
+            'debut-fade': StrategyD,
+            'TP': StrategyTP,
+            'flb-15m': StrategyH5_15m,
+            'A': StrategyA, 'Avol': StrategyA_VolumeFiltered,
+            'B': StrategyB, 'C': StrategyC, 'Cvol': StrategyC_VolumeFiltered,
+            'D': StrategyD, 'H1': StrategyD,
+            'Amom': StrategyA_MomentumFiltered, 'sweet-spot-mom': StrategyA_MomentumFiltered,
+            'Cmom': StrategyC_MomentumFiltered, 'fade-long-mom': StrategyC_MomentumFiltered,
+            'H5_15m': StrategyH5_15m, 'H5_15M': StrategyH5_15m,
+        })
     strategy_names = [s.strip() for s in args.strategy.split(',')]
 
     strategies = []
