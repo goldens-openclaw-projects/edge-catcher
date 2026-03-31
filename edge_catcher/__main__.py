@@ -230,11 +230,14 @@ def _cmd_backtest(args) -> None:
     from edge_catcher.runner.event_backtest import EventBacktester
     from edge_catcher.runner.strategies import (
         StrategyA, StrategyB, StrategyC, StrategyTP,
-        StrategyD, StrategyH5_15m,
+        StrategyD, StrategyH5_15m, StrategyA_VolumeFiltered,
+        StrategyC_VolumeFiltered, StrategyA_MomentumFiltered,
+        StrategyC_MomentumFiltered,
     )
 
     strategy_map = {
         'sweet-spot': StrategyA,
+        'sweet-spot-vol': StrategyA_VolumeFiltered,
         'contra-dip': StrategyB,
         'fade-long': StrategyC,
         'debut-fade': StrategyD,
@@ -242,6 +245,13 @@ def _cmd_backtest(args) -> None:
         'flb-15m': StrategyH5_15m,
         # Backwards compat aliases
         'A': StrategyA,
+        'Avol': StrategyA_VolumeFiltered,
+        'Cvol': StrategyC_VolumeFiltered,
+        'fade-long-vol': StrategyC_VolumeFiltered,
+        'Amom': StrategyA_MomentumFiltered,
+        'sweet-spot-mom': StrategyA_MomentumFiltered,
+        'Cmom': StrategyC_MomentumFiltered,
+        'fade-long-mom': StrategyC_MomentumFiltered,
         'B': StrategyB,
         'C': StrategyC,
         'D': StrategyD,
@@ -262,7 +272,8 @@ def _cmd_backtest(args) -> None:
             kwargs['min_price'] = args.min_price
         if args.max_price is not None:
             kwargs['max_price'] = args.max_price
-        if name == 'TP':
+        if name in ('TP', 'A', 'Avol', 'sweet-spot', 'sweet-spot-vol', 'C', 'Cvol', 'fade-long', 'fade-long-vol',
+                    'Amom', 'sweet-spot-mom', 'Cmom', 'fade-long-mom'):
             if args.tp is not None:
                 kwargs['take_profit'] = args.tp
             if args.sl is not None:
@@ -281,6 +292,16 @@ def _cmd_backtest(args) -> None:
                 kwargs['fav_threshold'] = args.h5_fav_threshold
             if args.h5_long_threshold is not None:
                 kwargs['long_threshold'] = args.h5_long_threshold
+        # Load BTC OHLC data for momentum-filtered strategies
+        if name in ('Amom', 'sweet-spot-mom', 'Cmom', 'fade-long-mom'):
+            import sqlite3 as _sql
+            _conn = _sql.connect(str(args.db_path))
+            _conn.row_factory = _sql.Row
+            _rows = _conn.execute('SELECT timestamp, close FROM btc_ohlc ORDER BY timestamp').fetchall()
+            kwargs['btc_closes'] = {r['timestamp']: r['close'] for r in _rows}
+            _conn.close()
+            print(f'  Loaded {len(kwargs["btc_closes"])} BTC candles for momentum filter', file=sys.stderr)
+
         strategies.append(cls(**kwargs))
 
     start = date.fromisoformat(args.start) if args.start else None
