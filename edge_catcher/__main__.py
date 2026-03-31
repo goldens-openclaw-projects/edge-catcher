@@ -234,21 +234,28 @@ def _cmd_backtest(args) -> None:
     )
 
     strategy_map = {
+        'sweet-spot': StrategyA,
+        'contra-dip': StrategyB,
+        'fade-long': StrategyC,
+        'debut-fade': StrategyD,
+        'TP': StrategyTP,
+        'flb-15m': StrategyH5_15m,
+        # Backwards compat aliases
         'A': StrategyA,
         'B': StrategyB,
         'C': StrategyC,
-        'TP': StrategyTP,
         'D': StrategyD,
-        'H1': StrategyD,   # backwards-compat alias
+        'H1': StrategyD,
+        'H5_15m': StrategyH5_15m,
         'H5_15M': StrategyH5_15m,
     }
-    strategy_names = [s.strip().upper() for s in args.strategy.split(',')]
+    strategy_names = [s.strip() for s in args.strategy.split(',')]
 
     strategies = []
     for name in strategy_names:
         cls = strategy_map.get(name)
         if cls is None:
-            print(f"Unknown strategy: {name}. Available: A, B, C, TP, D, H5_15m", file=sys.stderr)
+            print(f"Unknown strategy: {name}. Available: sweet-spot, contra-dip, fade-long, debut-fade, TP, flb-15m", file=sys.stderr)
             sys.exit(1)
         kwargs: dict = {}
         if args.min_price is not None:
@@ -260,7 +267,7 @@ def _cmd_backtest(args) -> None:
                 kwargs['take_profit'] = args.tp
             if args.sl is not None:
                 kwargs['stop_loss'] = args.sl
-        if name in ('D', 'H1'):
+        if name in ('D', 'H1', 'debut-fade'):
             if args.tp is not None:
                 kwargs['take_profit'] = args.tp
             if args.sl is not None:
@@ -269,7 +276,7 @@ def _cmd_backtest(args) -> None:
                 kwargs['threshold_high'] = args.h1_threshold_high
             if args.h1_threshold_low is not None:
                 kwargs['threshold_low'] = args.h1_threshold_low
-        if name == 'H5_15M':
+        if name in ('H5_15M', 'H5_15m', 'flb-15m'):
             if args.h5_fav_threshold is not None:
                 kwargs['fav_threshold'] = args.h5_fav_threshold
             if args.h5_long_threshold is not None:
@@ -388,7 +395,7 @@ def main() -> None:
     pt.set_defaults(func=_cmd_paper_trade)
 
     pt15 = sub.add_parser('paper-trade-15m', help='Run 15-min BTC paper trading (Strategy D)')
-    pt15.add_argument('--db', default='data/paper_trades_15m.db')
+    pt15.add_argument('--db', default='data/paper_trades.db')
     pt15.add_argument('--threshold-high', type=int, default=60,
                       help='Buy NO when first yes_ask > this (cents)', dest='threshold_high')
     pt15.add_argument('--threshold-low', type=int, default=40,
