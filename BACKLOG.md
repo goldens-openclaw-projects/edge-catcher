@@ -4,7 +4,17 @@
 - [🔄] **Sports data download** — KXNBASPREAD + KXMLBSPREAD downloading to `data/kalshi_sports.db`. ~9,365 markets, est 10-12GB. Running in background (PID tracked, log at `/tmp/sports_download.log`). KXNBAGAME/KXMLBGAME skipped (18-50K trades/market, too large).
 - [🔄] **Paper trader validation** — debut-fade on KXBTC15M running (PID 10449). Through Apr 7 before changes.
 
-## Next Up — Sports Market Pivot
+## Next Up — Retail Flow Score (Track A)
+- [ ] **Design retail flow scoring from trade tape** — use `taker_side` field in existing BTC data to prototype. Count buy-side aggression, cluster by price level, flag imbalanced flow. Series-agnostic (works on any Kalshi data).
+- [ ] **Backtest retail flow as entry filter** — add flow score as signal/filter to existing strategies. Does entering ONLY when retail flow is extreme improve win rate?
+- [ ] **Apply to sports data** — once download completes, run same flow scoring on KXNBASPREAD
+
+## Next Up — KXFED / Event Overreaction (Track C)
+- [ ] **Download KXFED data** — 12K+ vol/market, monthly FOMC settlements. Pure retail-vs-institutional.
+- [ ] **Backtest post-announcement mispricing** — do Kalshi KXFED prices overshoot after CPI/NFP/FOMC announcements? Compare to fed funds futures (the "correct" price).
+- [ ] **Event overreaction hypothesis** — retail panic-buys "rate hike" contracts when CPI is hot, but bond market already priced it.
+
+## Next Up — Sports Market Pivot (Track B)
 
 ### Phase 2a — Data & Research (current focus)
 - [x] Download Kalshi sports data (KXNBASPREAD, KXMLBSPREAD) — in progress
@@ -41,6 +51,11 @@
 - [x] Research agenda documented (reports/research-agenda-2026-04-01.md)
 - [x] Kalshi BTC data download complete (16.7M trades, 23GB)
 - [x] ROADMAP.md + BACKLOG.md created
+
+## Future — Retail Bias Catalog
+- [ ] **Round number anchoring** — retail clusters at 25¢/50¢/75¢. Test if fading round-number prices outperforms random entry.
+- [ ] **Panic/FOMO filter (crypto)** — after >5% BTC move, are Kalshi prices systematically mispriced? Extend momentum filter to be a signal, not just a skip condition.
+- [ ] **Public team bias (sports)** — popular teams (Lakers, Yankees, Cowboys) trade at premium. Fade public favorites.
 
 ## Parked
 - [ ] **Maker execution design** — deprioritized, strategies are fundamentally taker
