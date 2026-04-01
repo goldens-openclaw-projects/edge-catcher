@@ -68,6 +68,25 @@
 | Geopolitics | 0% | 0% | FREE — any edge = pure profit |
 | Economics/Culture/Weather | 5.0% | 0% | Moderate |
 
+## Next Up — Maker Execution Strategy (Track E)
+- [ ] **Maker strategy on Kalshi (1.75% fee)** — post limit NO orders in thin markets where retail flow is expected. Cstack at maker fee = +$102.55/yr (already backtested). Design: pre-position in markets matching volume filter criteria, let retail fill.
+- [ ] **Maker strategy on Polymarket (0% fee)** — same logic, zero fee. Need Polymarket adapter first (Track D).
+- [ ] **Maker fill simulation** — key risk: limit orders might not fill. Build fill-rate estimator from historical orderbook data. If <50% fill rate, maker edge is halved.
+- [ ] **Hybrid taker/maker** — use flow score to decide: strong signal → taker (pay fee, guaranteed fill), weak signal → maker (post limit, save fee, risk no fill).
+
+## Next Up — Thin Liquidity Sweep (Track F)
+- [ ] **Download Kalshi long-tail data** — expand beyond BTC/sports. Target: Weather (251 series), Mentions (317), Entertainment (2,256), Companies (321). Start with top 5 highest-volume non-BTC series.
+- [ ] **Cross-category volume filter test** — does the ≤20 trades = mispriced finding hold across weather, entertainment, politics? Universal test on all settled markets.
+- [ ] **External fair value scoring** — for weather markets, compare Kalshi price vs weather API forecast. For entertainment, compare vs critic consensus. The gap = mispricing signal.
+- [ ] **SX Bet liquidity scan** — check if SX Bet sports markets are thin enough for volume-filter edge at 0% fee.
+
+## Next Up — Active Trading / Exit Before Settlement (Track G)
+- [ ] **Pre-settlement exit backtest** — instead of holding to settlement, test selling when price reverts to fair value. Potential benefits: (1) faster capital recycling, (2) smaller max loss per trade, (3) more trades per unit time.
+- [ ] **Mean-reversion exit signal** — when mispriced market trades back through 50¢ (fair value), exit. Caps loss at ~30¢ instead of 80¢. Caps win similarly.
+- [ ] **Time-based exit** — exit at 50% of market lifetime regardless of price. Reduces exposure to late-life gamma risk.
+- [ ] **Hybrid hold/trade strategy** — hold-to-settlement in high-conviction (strong flow + thin market), active exit in medium-conviction. Two tiers of position management.
+- [ ] **Live trading requirements** — if active trading proves superior, need: real-time price feed (WebSocket), exit order execution, position tracking, latency optimization. Significantly more infrastructure than hold-to-settlement.
+
 ## Future — Retail Bias Catalog
 - [ ] **Round number anchoring** — retail clusters at 25¢/50¢/75¢. Test if fading round-number prices outperforms random entry.
 - [ ] **Panic/FOMO filter (crypto)** — after >5% BTC move, are Kalshi prices systematically mispriced? Extend momentum filter to be a signal, not just a skip condition.
