@@ -9,11 +9,14 @@ combos = [
     ('fade-long + stacked (2025)', 'Cstack', '2025-01-01', '2025-12-31'),
 ]
 
+FEE_PCT = '1.0'  # 1.0 = full Kalshi taker fee (0.07 * P * (1-P))
+
 results = []
 for label, strat, start, end in combos:
     cmd = ['python', '-m', 'edge_catcher', 'backtest',
            '--series', 'KXBTCD', '--strategy', strat,
-           '--start', start, '--end', end]
+           '--start', start, '--end', end,
+           '--fee-pct', FEE_PCT]
     print(f'Running {label}...', flush=True)
     r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0:
@@ -29,6 +32,7 @@ for label, strat, start, end in combos:
             'losses': data.get('losses', 0),
             'win_rate': round(data.get('win_rate', 0)*100, 1),
             'net_pnl': data.get('net_pnl_cents', 0),
+            'fees_paid': data.get('total_fees_paid', 0),
             'sharpe': round(data.get('sharpe', 0), 2),
             'avg_win': round(data.get('avg_win_cents', 0), 1),
             'avg_loss': round(data.get('avg_loss_cents', 0), 1),
