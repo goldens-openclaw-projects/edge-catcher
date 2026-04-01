@@ -52,6 +52,22 @@
 - [x] Kalshi BTC data download complete (16.7M trades, 23GB)
 - [x] ROADMAP.md + BACKLOG.md created
 
+## Next Up — Polymarket Multi-Venue (Track D)
+- [ ] **Polymarket adapter** — add data adapter using CLOB API (public, no auth for reads). Historical timeseries + trades available.
+- [ ] **Download Polymarket sports data** — sports markets have 3% taker fee (vs Kalshi 7%). Test flow score + debut-fade.
+- [ ] **Polymarket geopolitics scan** — 0% fee category. Any signal = pure profit. Scan for retail flow patterns.
+- [ ] **Maker execution prototype** — post limit orders (0% fee everywhere). Detect retail flow → post opposite limit → wait for fill → hold to settlement.
+- [ ] **Cross-venue scanner** — same event on Kalshi AND Polymarket → flag price divergence > fee spread.
+
+### Polymarket Fee Reference
+| Category | Taker Fee | Maker Fee | Notes |
+|----------|-----------|-----------|-------|
+| Sports | 3.0% | 0% | Best venue for sports strategies |
+| Crypto | 7.2% | 0% | WORSE than Kalshi for taker |
+| Finance/Politics | 4.0% | 0% | Decent |
+| Geopolitics | 0% | 0% | FREE — any edge = pure profit |
+| Economics/Culture/Weather | 5.0% | 0% | Moderate |
+
 ## Future — Retail Bias Catalog
 - [ ] **Round number anchoring** — retail clusters at 25¢/50¢/75¢. Test if fading round-number prices outperforms random entry.
 - [ ] **Panic/FOMO filter (crypto)** — after >5% BTC move, are Kalshi prices systematically mispriced? Extend momentum filter to be a signal, not just a skip condition.

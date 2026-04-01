@@ -236,6 +236,7 @@ def _cmd_backtest(args) -> None:
             StrategyC_VolumeFiltered, StrategyA_MomentumFiltered,
             StrategyC_MomentumFiltered, StrategyC_StackedFilters,
             StrategyD_VolumeFiltered,
+            StrategyFlowFade, StrategyFlowFade_VolumeFiltered,
         )
         _has_local = True
     except ImportError:
@@ -262,6 +263,8 @@ def _cmd_backtest(args) -> None:
             'Cmom': StrategyC_MomentumFiltered, 'fade-long-mom': StrategyC_MomentumFiltered,
             'Cstack': StrategyC_StackedFilters, 'fade-long-stacked': StrategyC_StackedFilters,
             'H5_15m': StrategyH5_15m, 'H5_15M': StrategyH5_15m,
+            'Fflow': StrategyFlowFade, 'flow-fade': StrategyFlowFade,
+            'Ffvol': StrategyFlowFade_VolumeFiltered, 'flow-fade-vol': StrategyFlowFade_VolumeFiltered,
         })
     strategy_names = [s.strip() for s in args.strategy.split(',')]
 
