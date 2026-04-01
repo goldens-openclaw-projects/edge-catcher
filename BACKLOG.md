@@ -75,7 +75,9 @@
 - [ ] **Hybrid taker/maker** — use flow score to decide: strong signal → taker (pay fee, guaranteed fill), weak signal → maker (post limit, save fee, risk no fill).
 
 ## Next Up — Thin Liquidity Sweep (Track F)
-- [ ] **Download Kalshi long-tail data** — expand beyond BTC/sports. Target: Weather (251 series), Mentions (317), Entertainment (2,256), Companies (321). Start with top 5 highest-volume non-BTC series.
+- [x] **Sports backtest (NBA/MLB)** — fade-long does NOT transfer. 77% WR tops, below 86% break-even. Sports microstructure too informed. (2026-04-01)
+- [x] **Config adapters for 6 new categories** — crypto altcoins, weather, financials, entertainment, politics, esports. Committed `39860ac`. (2026-04-01)
+- [ ] **Download all categories** — `python -m edge_catcher download --config config-<cat> --db-path data/kalshi_<cat>.db`. Priority: crypto altcoins first (same microstructure as BTC), weather second (likely thin/retail).
 - [ ] **Cross-category volume filter test** — does the ≤20 trades = mispriced finding hold across weather, entertainment, politics? Universal test on all settled markets.
 - [ ] **External fair value scoring** — for weather markets, compare Kalshi price vs weather API forecast. For entertainment, compare vs critic consensus. The gap = mispricing signal.
 - [ ] **SX Bet liquidity scan** — check if SX Bet sports markets are thin enough for volume-filter edge at 0% fee.
