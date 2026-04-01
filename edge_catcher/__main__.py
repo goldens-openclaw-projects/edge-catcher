@@ -234,7 +234,8 @@ def _cmd_backtest(args) -> None:
             StrategyA, StrategyB, StrategyC, StrategyTP,
             StrategyD, StrategyH5_15m, StrategyA_VolumeFiltered,
             StrategyC_VolumeFiltered, StrategyA_MomentumFiltered,
-            StrategyC_MomentumFiltered,
+            StrategyC_MomentumFiltered, StrategyC_StackedFilters,
+            StrategyD_VolumeFiltered,
         )
         _has_local = True
     except ImportError:
@@ -256,8 +257,10 @@ def _cmd_backtest(args) -> None:
             'A': StrategyA, 'Avol': StrategyA_VolumeFiltered,
             'B': StrategyB, 'C': StrategyC, 'Cvol': StrategyC_VolumeFiltered,
             'D': StrategyD, 'H1': StrategyD,
+            'Dvol': StrategyD_VolumeFiltered, 'debut-fade-vol': StrategyD_VolumeFiltered,
             'Amom': StrategyA_MomentumFiltered, 'sweet-spot-mom': StrategyA_MomentumFiltered,
             'Cmom': StrategyC_MomentumFiltered, 'fade-long-mom': StrategyC_MomentumFiltered,
+            'Cstack': StrategyC_StackedFilters, 'fade-long-stacked': StrategyC_StackedFilters,
             'H5_15m': StrategyH5_15m, 'H5_15M': StrategyH5_15m,
         })
     strategy_names = [s.strip() for s in args.strategy.split(',')]
@@ -294,7 +297,7 @@ def _cmd_backtest(args) -> None:
             if args.h5_long_threshold is not None:
                 kwargs['long_threshold'] = args.h5_long_threshold
         # Load BTC OHLC data for momentum-filtered strategies
-        if name in ('Amom', 'sweet-spot-mom', 'Cmom', 'fade-long-mom'):
+        if name in ('Amom', 'sweet-spot-mom', 'Cmom', 'fade-long-mom', 'Cstack', 'fade-long-stacked'):
             import sqlite3 as _sql
             _conn = _sql.connect(str(args.db_path))
             _conn.row_factory = _sql.Row
