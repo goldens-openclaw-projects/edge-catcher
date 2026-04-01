@@ -18,13 +18,44 @@
 
 ---
 
-## Phase 2 — Multi-Market Adapter
-**Goal:** Prove the adapter pattern works cross-market. Sports is the target.
+## Phase 2 — Sports Markets & Multi-Market Adapter
+**Goal:** Pivot from BTC binaries to sports event contracts on Kalshi + external odds benchmarking.
 
-- [ ]  (or equivalent public odds API)
-- [ ] Shared  /  dataclasses already handle cross-market data
+### Phase 2a — Kalshi Sports Data Download
+- [ ] Download historical trades for KXNBASPREAD, KXMLBSPREAD, KXNBAGAME, KXMLBGAME
+- [ ] Scope: 2025 season only (Oct 2024–Jun 2025 for NBA, Mar–Oct 2025 for MLB) — est ~1-2GB
+- [ ] Reuse existing Kalshi adapter (same API, different series tickers)
+- [ ] Store in same `kalshi.db` or separate `kalshi_sports.db` to keep BTC data isolated
+
+### Phase 2b — External Closing Line Data
+- [ ] Evaluate odds API providers for historical closing lines (see cost analysis below)
+- [ ] **Best option for research:** OddsPapi free tier (250 req/mo, includes Pinnacle, no multiplier on historical) or The Odds API $30/mo (20K credits, historical costs 10× = ~2K calls)
+- [ ] Download closing lines for same games as Kalshi sports data (NBA/MLB 2025)
+- [ ] Build cross-reference: Kalshi opening price vs sportsbook consensus closing line
+- [ ] **BLOCKER:** Need to validate closing line data actually exists + is accessible before committing
+
+### Phase 2c — Sports Hypothesis Testing
+- [ ] Debut-fade on KXNBASPREAD/KXMLBSPREAD (first trade mispricing)
+- [ ] Closing Line Value (CLV) strategy: Kalshi price vs Pinnacle/consensus closing line
+- [ ] Volume filter transfer test: does low-volume filter work on sports markets too?
+- [ ] Fee-adjusted backtests for all sports strategies
+
+### Phase 2d — Adapter Generalization
+- [ ] Shared dataclasses already handle cross-market data
 - [ ] Reference hypothesis for sports (e.g., closing line value)
 - [ ] Adapter docs + example for community contributions
+
+### Cost Analysis — Odds Data Providers
+| Provider | Free Tier | Historical Cost | Sharp Lines | Monthly for Research |
+|----------|-----------|-----------------|-------------|---------------------|
+| **OddsPapi** | 250 req/mo | Same as live (no multiplier) | ✅ Pinnacle, Singbet | $0–$49/mo |
+| **The Odds API** | 500 credits/mo | 10× credit multiplier (~50 calls) | ❌ No Pinnacle | $30–$59/mo |
+| **SportsGameOdds** | Limited free | Closing odds included | ✅ Pinnacle | $99–$499/mo |
+| **Sports-Reference** | Free (web) | Basic closing lines, scrapeable | ❌ Not sharp-specific | $0 |
+
+**Recommendation:** Start with OddsPapi free tier or Sports-Reference scraping for research phase. Upgrade to paid only after validating the cross-reference edge exists.
+
+**Live data cost concern:** For live trading, we'd need real-time odds (~$49-119/mo). Only worth it AFTER research proves the edge is real. The Kalshi side is free (API included with account).
 
 ---
 
