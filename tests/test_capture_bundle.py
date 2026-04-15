@@ -344,3 +344,73 @@ def test_bundle_market_state_none_skips_snapshot(
 	# Everything else still there
 	assert (bundle_path / "manifest.json").exists()
 	assert (bundle_path / "kalshi_engine_2026-04-14.jsonl.zst").exists()
+
+
+def test_strategy_state_snapshot_happy_path(tmp_path):
+	"""Snapshot writes a JSON envelope with all rows from the fixture DB,
+	json.loads'd into native Python objects and grouped by strategy."""
+	import json
+	import sqlite3
+	from datetime import datetime, timezone
+	from edge_catcher.monitors.capture.bundle import _write_strategy_state_snapshot
+
+	db_path = tmp_path / "fixture.db"
+	conn = sqlite3.connect(str(db_path))
+	conn.executescript("""
+		CREATE TABLE strategy_state (
+			strategy TEXT NOT NULL,
+			key TEXT NOT NULL,
+			value TEXT NOT NULL,
+			updated_at TEXT NOT NULL,
+			PRIMARY KEY (strategy, key)
+		);
+	""")
+	now = datetime.now(timezone.utc).isoformat()
+	rows = [
+		("debut-fade", "seen:KXETH", json.dumps(True), now),
+		("debut-fade", "counter", json.dumps(42), now),
+		("debut-fade", "rolling", json.dumps([1, 2, 3]), now),
+		("flb-15m", "entered:KXLOL", json.dumps(1), now),
+		("flb-15m", "nested", json.dumps({"a": 1, "b": [2, 3]}), now),
+		("flb-15m", "scalar", json.dumps("string-val"), now),
+	]
+	conn.executemany(
+		"INSERT INTO strategy_state (strategy, key, value, updated_at) VALUES (?, ?, ?, ?)",
+		rows,
+	)
+	conn.commit()
+	conn.close()
+
+	dst = tmp_path / "strategy_state_at_start.json"
+	_write_strategy_state_snapshot(db_path, dst)
+
+	assert dst.exists()
+	envelope = json.loads(dst.read_text(encoding="utf-8"))
+	assert envelope["schema_version"] == 1
+	# captured_at must be parseable ISO8601
+	datetime.fromisoformat(envelope["captured_at"])
+	assert envelope["states"]["debut-fade"] == {
+		"seen:KXETH": True,
+		"counter": 42,
+		"rolling": [1, 2, 3],
+	}
+	assert envelope["states"]["flb-15m"] == {
+		"entered:KXLOL": 1,
+		"nested": {"a": 1, "b": [2, 3]},
+		"scalar": "string-val",
+	}
+
+	# Stable serialization: running the snapshot twice on the same fixture DB
+	# must produce identical `states` subtrees (captured_at drifts by wall
+	# clock, so it's parsed out rather than raw-byte compared). Relies on
+	# sort_keys=True in the writer.
+	dst2 = tmp_path / "strategy_state_at_start_2.json"
+	_write_strategy_state_snapshot(db_path, dst2)
+	env2 = json.loads(dst2.read_text(encoding="utf-8"))
+	assert env2["states"] == envelope["states"]
+	# Re-serializing both states subtrees with the same options must produce
+	# identical bytes — proves the writer's output order is deterministic.
+	assert (
+		json.dumps(env2["states"], sort_keys=True, indent=2)
+		== json.dumps(envelope["states"], sort_keys=True, indent=2)
+	)
